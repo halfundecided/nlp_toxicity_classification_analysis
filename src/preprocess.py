@@ -45,8 +45,14 @@ def preprocessing():
     print("Shape of y_test", str(y_test.shape))
     print("Shape of y_test_categorized", str(y_test_categorized.shape))
 
-    return X_train, y_train, X_val, y_val, X_test, y_test, y_test_categorized
-
-
-if __name__ == "__main__":
-    preprocessing()
+    return (
+        X_train,
+        y_train,
+        X_val,
+        y_val,
+        X_test,
+        y_test,
+        y_test_categorized,
+        maxlen,
+        vocab_size,
+    )
