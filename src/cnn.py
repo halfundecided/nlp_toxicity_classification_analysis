@@ -14,11 +14,7 @@ from keras import optimizers
 
 
 def build_model(X_train, y_train, X_val, y_val, maxlen, vocab_size, learning_rate):
-    input = Input(
-        shape(
-            maxlen,
-        )
-    )
+    input = Input(shape=(maxlen,))
     embedding = Embedding(vocan_size, 100)  # need to change
 
     # dropout = SpatialDropout1D(rate=0.0)(embedding)
