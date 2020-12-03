@@ -62,8 +62,8 @@ def build_cnn_model(
         optimizer=optimizers.Adam(lr=learning_rate),
         metrics=["accuracy"],
     )
-    model.fit(
+    history = model.fit(
         X_train, y_train, epochs=3, validation_data=(X_val, y_val), batch_size=128
     )
 
-    return model
+    return model, history

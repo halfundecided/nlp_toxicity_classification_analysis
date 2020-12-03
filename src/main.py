@@ -23,7 +23,7 @@ if __name__ == "__main__":
         "../data/glove.42B.300d.txt", vocab_size, word_index
     )
     print("done embedding!")
-    model = build_cnn_model(
+    model, history = build_cnn_model(
         X_train,
         y_train,
         X_val,
@@ -34,5 +34,3 @@ if __name__ == "__main__":
         EMBEDDING_DIM,
         learning_rate=1e-3,
     )
-    loss_and_acc = model.evaluate(X_test, y_test)
-    print(loss_and_acc[1])
