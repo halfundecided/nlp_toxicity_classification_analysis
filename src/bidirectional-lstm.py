@@ -8,6 +8,7 @@ from keras.layers import (
     Dense,
 )
 from kerals.models import Sequential
+from keras import optimizers
 
 
 def build_bidirectional_model(
@@ -36,6 +37,19 @@ def build_bidirectional_model(
 
     hidden0 = add([poolings, Dense(512, activation="relu")(poolings)])
     hidden1 = add([hidden0, Dense(512, activation="relu")(hidden0)])
-    dense = Dense(
-        1,
+    dense = Dense(1, activation="sigmoid")(hidden1)
+
+    model = Model(input, dense)
+    print(model.summary())
+
+    # train model
+    model.compile(
+        loss="binary_crossentropy",
+        optimizer=optimizer.Adam(lr=learning_rate),
+        metrics=["accuracy"],
     )
+    model.fit(
+        X_train, y_train, epochs=3, validation_data=(X_val, y_val), batch_size=128
+    )
+
+    return model
