@@ -1,9 +1,4 @@
 import numpy as np
-import sys
-import os
-
-# suppress info output from tf
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "1"
 from keras.layers import (
     Input,
     Embedding,
@@ -20,9 +15,21 @@ from keras import optimizers
 from preprocess import *
 
 
-def build_model(X_train, y_train, X_val, y_val, maxlen, vocab_size, learning_rate):
+def build_cnn_model(
+    X_train,
+    y_train,
+    X_val,
+    y_val,
+    embedding_matrix,
+    maxlen,
+    vocab_size,
+    embedding_dim,
+    learning_rate,
+):
     input = Input(shape=(maxlen,))
-    embedding = Embedding(vocab_size, 100, weights=[embedding_matrix], trainable=False)(
+    embedding = Embedding(
+        vocab_size, embedding_dim, weights=[embedding_matrix], trainable=False
+    )(
         input
     )  # need to change
 
@@ -51,7 +58,7 @@ def build_model(X_train, y_train, X_val, y_val, maxlen, vocab_size, learning_rat
 
     # train model
     model.compile(
-        loss="categorical_crossentropy",
+        loss="binary_crossentropy",
         optimizer=optimizers.Adam(lr=learning_rate),
         metrics=["accuracy"],
     )

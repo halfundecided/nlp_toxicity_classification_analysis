@@ -1,0 +1,41 @@
+from keras.layers import (
+    Embedding,
+    SpatialDropout1D,
+    Bidirectional,
+    CuDNNLSTM,
+    GlobalMaxPooling1D,
+    GlobalAveragePooling1D,
+    Dense,
+)
+from kerals.models import Sequential
+
+
+def build_bidirectional_model(
+    X_train,
+    y_train,
+    X_val,
+    y_val,
+    embedding_matrix,
+    maxlen,
+    vocab_size,
+    embedding_dim,
+    learning_rate,
+):
+    input = Input(shape=(maxlen,))
+    embedding = Embedding(
+        vocab_size, embedding_dim, weights=[embedding_matrix], trainable=False
+    )(input)
+    spatial_dropout = SpatialDropout1D(0.2)(embedding)
+    # CuDNNLSTM: https://www.tensorflow.org/api_docs/python/tf/compat/v1/keras/layers/CuDNNLSTM
+    bilstm0 = Bidirectional(CuDNNLSTM(128, return_sequences=True))(spatial_dropout)
+    bilstm1 = Bidirectional(CuDNNLSTM(128, return_sequences=True))(bilstm0)
+
+    poolings = concatenate(
+        [GlobalMaxPooling1D()(bilstm1), GlobalAveragePooling1D()(bilstm1)]
+    )
+
+    hidden0 = add([poolings, Dense(512, activation="relu")(poolings)])
+    hidden1 = add([hidden0, Dense(512, activation="relu")(hidden0)])
+    dense = Dense(
+        1,
+    )

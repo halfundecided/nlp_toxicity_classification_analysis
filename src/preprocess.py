@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from keras.preprocessing.text import Tokenizer
@@ -6,7 +7,7 @@ from keras.utils import to_categorical
 
 
 def preprocessing():
-    df = pd.read_csv("./train.csv")
+    df = pd.read_csv("../data/train.csv")
 
     comments = df["comment_text"].values
     targets = np.where(df["target"] >= 0.5, True, False) * 1
@@ -62,7 +63,7 @@ def glove_embedding(file_path, vocab_size, word_index):
         embedding_index[word] = coefs
     f.close()
 
-    embedding_matrix = np.zeros((vocab_size, 100))
+    embedding_matrix = np.zeros((vocab_size, 300))
     for word, i in word_index.items():
         embedding_vector = embedding_index.get(word)
         if embedding_vector is not None:
