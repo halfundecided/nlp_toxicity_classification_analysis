@@ -1,4 +1,10 @@
-from preprocess import *
+import numpy as np
+import sys
+import os
+
+# suppress info output from tf
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
+
 from keras.layers import (
     Input,
     Embedding,
@@ -9,9 +15,11 @@ from keras.layers import (
     Dense,
     Dropout,
 )
+
 from keras.models import Model
 from keras import optimizers
 
+from preprocess import *
 
 def build_model(X_train, y_train, X_val, y_val, maxlen, vocab_size, learning_rate):
     input = Input(
