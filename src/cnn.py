@@ -1,5 +1,5 @@
 import numpy as np
-from keras.layers import (
+from tensorflow.keras.layers import (
     Input,
     Embedding,
     SpatialDropout1D,
@@ -9,8 +9,8 @@ from keras.layers import (
     Dense,
     Dropout,
 )
-from keras.models import Model
-from keras import optimizers
+from tensorflow.keras.models import Model
+from tensorflow.keras import optimizers
 
 from preprocess import *
 

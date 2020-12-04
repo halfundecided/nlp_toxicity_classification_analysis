@@ -1,4 +1,4 @@
-from keras.layers import (
+from tensorflow.keras.layers import (
     Embedding,
     SpatialDropout1D,
     Bidirectional,
@@ -7,8 +7,8 @@ from keras.layers import (
     GlobalAveragePooling1D,
     Dense,
 )
-from kerals.models import Sequential
-from keras import optimizers
+from tensorflow.kerals.models import Sequential
+from tensorflow.keras import optimizers
 
 
 def build_bidirectional_model(

@@ -1,6 +1,6 @@
-from keras.layers import Embedding, SpatialDropout1D, LSTM
-from keras.models import Sequential
-from keras import optimizers
+from tensorflow.keras.layers import Embedding, SpatialDropout1D, LSTM
+from tensorflow.keras.models import Sequential
+from tensorflow.keras import optimizers
 
 
 def build_lstm_model(
