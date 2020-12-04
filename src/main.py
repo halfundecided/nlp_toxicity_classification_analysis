@@ -1,6 +1,14 @@
 import os
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # suppress info output from tf
+
+# configure GPU settings
+from tensorflow.compat.v1 import ConfigProto
+from tensorflow.compat.v1 import InteractiveSession
+config = ConfigProto()
+config.gpu_options.allow_growth = True
+session = InteractiveSession(config=config)
+
 from preprocess import *
 from cnn import *
 from lstm import *
@@ -34,3 +42,15 @@ if __name__ == "__main__":
         EMBEDDING_DIM,
         learning_rate=1e-3,
     )
+
+    """
+    lstm_model, lstm_history = build_lstm_model(
+    X_train,
+    y_train,
+    X_val,
+    y_val,
+    embedding_matrix,
+    vocab_size,
+    EMBEDDING_DIM,
+    learning_rate=1e-3)
+    """

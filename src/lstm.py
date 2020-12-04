@@ -1,4 +1,4 @@
-from tensorflow.keras.layers import Embedding, SpatialDropout1D, LSTM
+from tensorflow.keras.layers import Embedding, SpatialDropout1D, LSTM, Dense
 from tensorflow.keras.models import Sequential
 from tensorflow.keras import optimizers
 
@@ -32,7 +32,7 @@ def build_lstm_model(
         metrics=["accuracy"],
     )
     history = model.fit(
-        X_train, y_train, epochs=3, validattion_data=(X_val, y_val), batch_size=128
+        X_train, y_train, epochs=3, validation_data=(X_val, y_val), batch_size=128
     )
 
     return model, history
