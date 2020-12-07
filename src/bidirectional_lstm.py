@@ -1,13 +1,16 @@
 from tensorflow.keras.layers import (
+    Input,
     Embedding,
+    Concatenate,
+    Add,
     SpatialDropout1D,
     Bidirectional,
-    CuDNNLSTM,
+    LSTM,
     GlobalMaxPooling1D,
     GlobalAveragePooling1D,
     Dense,
 )
-from tensorflow.kerals.models import Sequential
+from tensorflow.keras.models import Model
 from tensorflow.keras import optimizers
 
 
@@ -28,15 +31,15 @@ def build_bidirectional_model(
     )(input)
     spatial_dropout = SpatialDropout1D(0.2)(embedding)
     # CuDNNLSTM: https://www.tensorflow.org/api_docs/python/tf/compat/v1/keras/layers/CuDNNLSTM
-    bilstm0 = Bidirectional(CuDNNLSTM(128, return_sequences=True))(spatial_dropout)
-    bilstm1 = Bidirectional(CuDNNLSTM(128, return_sequences=True))(bilstm0)
+    bilstm0 = Bidirectional(LSTM(128, return_sequences=True))(spatial_dropout)
+    bilstm1 = Bidirectional(LSTM(128, return_sequences=True))(bilstm0)
 
-    poolings = concatenate(
+    poolings = Concatenate() (
         [GlobalMaxPooling1D()(bilstm1), GlobalAveragePooling1D()(bilstm1)]
     )
 
-    hidden0 = add([poolings, Dense(512, activation="relu")(poolings)])
-    hidden1 = add([hidden0, Dense(512, activation="relu")(hidden0)])
+    hidden0 = Add()([poolings, Dense(512, activation="relu")(poolings)])
+    hidden1 = Add()([hidden0, Dense(512, activation="relu")(hidden0)])
     dense = Dense(1, activation="sigmoid")(hidden1)
 
     model = Model(input, dense)
@@ -45,7 +48,7 @@ def build_bidirectional_model(
     # train model
     model.compile(
         loss="binary_crossentropy",
-        optimizer=optimizer.Adam(lr=learning_rate),
+        optimizer=optimizers.Adam(lr=learning_rate),
         metrics=["accuracy"],
     )
     history = model.fit(

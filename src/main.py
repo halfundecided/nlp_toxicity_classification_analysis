@@ -13,11 +13,12 @@ session = InteractiveSession(config=config)
 from preprocess import *
 from cnn import *
 from lstm import *
+from bidirectional_lstm import *
 from metrics import *
 
 if __name__ == "__main__":
     EMBEDDING_DIM = 300  # need to add params to cnn and lstm
-
+    
     ##### Run Preprocessing #####
     (
         X_train,
@@ -38,7 +39,7 @@ if __name__ == "__main__":
         "../data/glove.42B.300d.txt", vocab_size, word_index
     )
     print("done embedding!")
-
+    
     ##### Build CNN Model #####
     cnn_model, cnn_history = build_cnn_model(
         X_train,
@@ -64,12 +65,13 @@ if __name__ == "__main__":
     learning_rate=1e-3)
 
     ##### Build BD-LSTM Model #####
-    bd_lstm_model, bd_lstm_history = build_lstm_model(
+    bd_lstm_model, bd_lstm_history = build_bidirectional_model(
     X_train,
     y_train,
     X_val,
     y_val,
     embedding_matrix,
+    maxlen,
     vocab_size,
     EMBEDDING_DIM,
     learning_rate=1e-3)
@@ -88,7 +90,7 @@ if __name__ == "__main__":
     cnn_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(cnn_df, results_col, target_col)))
     cnn_loss,_ = cnn_model.evaluate(X_test, y_test)
     print("CNN Bias Score: {:.4f} --- CNN Loss: {:.4f}".format(cnn_score, cnn_loss))
-
+    
     ### Test LSTM ###
     lstm_df = test_df.copy()
     test_pred = lstm_model.predict(X_test)

@@ -1,4 +1,9 @@
-from tensorflow.keras.layers import Embedding, SpatialDropout1D, LSTM, Dense
+from tensorflow.keras.layers import (
+    Embedding,
+    SpatialDropout1D,
+    LSTM,
+    Dense
+)
 from tensorflow.keras.models import Sequential
 from tensorflow.keras import optimizers
 
@@ -20,6 +25,7 @@ def build_lstm_model(
         )
     )
     model.add(SpatialDropout1D(0.2))
+    model.add(LSTM(128, dropout=0.2, return_sequences=True))
     model.add(LSTM(128, dropout=0.2))
     model.add(Dense(1, activation="sigmoid"))
     model.summary()
