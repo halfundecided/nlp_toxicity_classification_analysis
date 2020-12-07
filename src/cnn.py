@@ -26,12 +26,10 @@ def build_cnn_model(
     embedding_dim,
     learning_rate,
 ):
-    input = Input(shape=(maxlen,))
+    inp = Input(shape=(maxlen,))
     embedding = Embedding(
         vocab_size, embedding_dim, weights=[embedding_matrix], trainable=False
-    )(
-        input
-    )  # need to change
+    )(inp) # need to change
 
     # layers
     conv0 = Conv1D(filters=128, kernel_size=3, padding="same", activation="relu")(
@@ -40,20 +38,17 @@ def build_cnn_model(
     pool0 = MaxPooling1D(pool_size=5)(conv0)
 
     conv1 = Conv1D(filters=128, kernel_size=3, padding="same", activation="relu")(pool0)
-    pool1 = MaxPooling1D(pool_size=5, padding="same")(conv1)
+    pool1 = MaxPooling1D(pool_size=4, padding="same")(conv1)
 
-    # conv2 = Conv1D(filters=128, kernel_size=3, padding="same", activation="relu")(pool1)
-    # pool2 = MaxPooling1D(pool_size=5, padding='same')(conv2)
+    conv2 = Conv1D(filters=128, kernel_size=3, padding="same", activation="relu")(pool1)
+    pool2 = MaxPooling1D(pool_size=4, padding='same')(conv2)
 
-    # conv3 = Conv1D(filters=128, kernel_size=3, padding="same", activation="relu")(pool2)
-    # pool3 = MaxPooling1D(pool_size=5, padding='same')(conv3)
-
-    flatten = Flatten()(pool1)
+    flatten = Flatten()(pool2)
     dense0 = Dense(64, activation="relu")(flatten)
     dropout = Dropout(0.2)(dense0)
     dense1 = Dense(1, activation="sigmoid")(dropout)
 
-    model = Model(input, dense1)
+    model = Model(inp, dense1)
     print(model.summary())
 
     # train model

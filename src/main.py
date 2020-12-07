@@ -52,8 +52,19 @@ if __name__ == "__main__":
         learning_rate=1e-3,
     )
 
-    ##### Build RNN Model #####
+    ##### Build LSTM Model #####
     lstm_model, lstm_history = build_lstm_model(
+    X_train,
+    y_train,
+    X_val,
+    y_val,
+    embedding_matrix,
+    vocab_size,
+    EMBEDDING_DIM,
+    learning_rate=1e-3)
+
+    ##### Build BD-LSTM Model #####
+    bd_lstm_model, bd_lstm_history = build_lstm_model(
     X_train,
     y_train,
     X_val,
@@ -68,19 +79,32 @@ if __name__ == "__main__":
     results_col = 'predicted_toxicity'
     target_col = 'toxicity'
 
+    ### Test CNN ###
     cnn_df = test_df.copy()
     test_pred = cnn_model.predict(X_test)
     cnn_df[results_col] = test_pred
 
     bias_metrics_df = compute_bias_metrics_for_model(cnn_df, identity_cols, results_col, target_col)
     cnn_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(cnn_df, results_col, target_col)))
-    print("CNN Bias Score:",cnn_score)
+    cnn_loss,_ = cnn_model.evaluate(X_test, y_test)
+    print("CNN Bias Score: {:.4f} --- CNN Loss: {:.4f}".format(cnn_score, cnn_loss))
 
-
+    ### Test LSTM ###
     lstm_df = test_df.copy()
     test_pred = lstm_model.predict(X_test)
     lstm_df[results_col] = test_pred
 
     bias_metrics_df = compute_bias_metrics_for_model(lstm_df, identity_cols, results_col, target_col)
     lstm_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(lstm_df, results_col, target_col)))
-    print("LSTM Bias Score:",lstm_score)
+    lstm_loss,_ = lstm_model.evaluate(X_test, y_test)
+    print("LSTM Bias Score: {:.4f} --- LSTM Loss: {:.4f}".format(lstm_score, lstm_loss))
+
+    ### Test Bidirectional LSTM ###
+    bd_lstm_df = test_df.copy()
+    test_pred = bd_lstm_model.predict(X_test)
+    bd_lstm_df[results_col] = test_pred
+
+    bias_metrics_df = compute_bias_metrics_for_model(bd_lstm_df, identity_cols, results_col, target_col)
+    bd_lstm_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(bd_lstm_df, results_col, target_col)))
+    bd_lstm_loss,_ = bd_lstm_model.evaluate(X_test, y_test)
+    print("Bidirectional LSTM Bias Score: {:.4f} --- Bidirectional LSTM Loss: {:.4f}".format(bd_lstm_score, bd_lstm_loss))
