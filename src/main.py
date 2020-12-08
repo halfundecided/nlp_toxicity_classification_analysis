@@ -95,7 +95,7 @@ if __name__ == "__main__":
     bias_metrics_df = compute_bias_metrics_for_model(cnn_sdbn_df, identity_cols, results_col, target_col)
     cnn_sdbn_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(cnn_sdbn_df, results_col, target_col)))
     cnn_sdbn_loss,_ = cnn_sdbn_model.evaluate(X_test, y_test)
-    print("CNN_Base Bias Score: {:.4f} --- CNN_Base Loss: {:.4f}".format(cnn_sdbn_score, cnn_sdbn_loss))
+    print("CNN_SBDN Bias Score: {:.4f} --- CNN_SBDN Loss: {:.4f}".format(cnn_sdbn_score, cnn_sdbn_loss))
 
 
 
@@ -143,7 +143,7 @@ if __name__ == "__main__":
     bias_metrics_df = compute_bias_metrics_for_model(lstm_2_df, identity_cols, results_col, target_col)
     lstm_2_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(lstm_2_df, results_col, target_col)))
     lstm_2_loss,_ = lstm_2_model.evaluate(X_test, y_test)
-    print("LSTM Bias Score: {:.4f} --- LSTM Loss: {:.4f}".format(lstm_2_score, lstm_2_loss))
+    print("LSTM_2 Bias Score: {:.4f} --- LSTM_2 Loss: {:.4f}".format(lstm_2_score, lstm_2_loss))
 
 
 

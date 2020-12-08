@@ -26,7 +26,6 @@ def build_lstm_base_model(
         )
     )
     model.add(SpatialDropout1D(0.2))
-    model.add(LSTM(128, dropout=0.2, return_sequences=True))
     model.add(LSTM(128, dropout=0.2))
     model.add(Dense(1, activation="sigmoid"))
     model.summary()
