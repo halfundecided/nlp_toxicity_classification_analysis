@@ -25,6 +25,7 @@ from lstm_att import *
 
 from bidirectional_lstm import *
 from bidirectional_lstm_att import *
+from bidirectional_lstm_att_fc import *
 
 from metrics import *
 
@@ -231,3 +232,28 @@ if __name__ == "__main__":
     bd_lstm_att_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(bd_lstm_att_df, results_col, target_col)))
     bd_lstm_att_loss,_ = bd_lstm_att_model.evaluate(X_test, y_test)
     print("Bidirectional LSTM Attention Bias Score: {:.4f} --- Bidirectional LSTM Attention Loss: {:.4f}".format(bd_lstm_att_score, bd_lstm_att_loss))
+
+
+
+    ##### Build BD-LSTM_Attention Model #####
+    bd_lstm_att_fc_model, bd_lstm_att_fc_history = build_bidirectional_att_fc_model(
+    X_train,
+    y_train,
+    X_val,
+    y_val,
+    embedding_matrix,
+    maxlen,
+    vocab_size,
+    EMBEDDING_DIM,
+    learning_rate=1e-3,
+    epochs=EPOCHS)
+
+    ### Test Bidirectional LSTM ###
+    bd_lstm_att_fc_df = test_df.copy()
+    test_pred = bd_lstm_att_fc_model.predict(X_test)
+    bd_lstm_att_fc_df[results_col] = test_pred
+
+    bias_metrics_df = compute_bias_metrics_for_model(bd_lstm_att_fc_df, identity_cols, results_col, target_col)
+    bd_lstm_att_fc_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(bd_lstm_att_fc_df, results_col, target_col)))
+    bd_lstm_att_fc_loss,_ = bd_lstm_att_fc_model.evaluate(X_test, y_test)
+    print("Bidirectional LSTM Attention Bias Score: {:.4f} --- Bidirectional LSTM Attention Loss: {:.4f}".format(bd_lstm_att_fc_score, bd_lstm_att_fc_loss))
