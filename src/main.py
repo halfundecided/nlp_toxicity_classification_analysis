@@ -59,6 +59,54 @@ if __name__ == "__main__":
     results_col = 'predicted_toxicity'
     target_col = 'toxicity'
 
+    ##### accuracy containers #####
+    cnn1_acc = []
+    cnn2_acc = []
+
+    lstm1_acc = []
+    lstm2_acc = []
+    lstm3_acc = []
+
+    bd_lstm1_acc = []
+    bd_lstm2_acc = []
+    bd_lstm3_acc = []
+
+    ##### validation accuracy containers #####
+    cnn1_acc_val = []
+    cnn2_acc_val = []
+
+    lstm1_acc_val = []
+    lstm2_acc_val = []
+    lstm3_acc_val = []
+
+    bd_lstm1_acc_val = []
+    bd_lstm2_acc_val = []
+    bd_lstm3_acc_val = []
+
+    ##### loss containers #####
+    cnn1_loss = []
+    cnn2_loss = []
+
+    lstm1_loss = []
+    lstm2_loss = []
+    lstm3_loss = []
+
+    bd_lstm1_loss = []
+    bd_lstm2_loss = []
+    bd_lstm3_loss = []
+
+    ##### validation loss containers #####
+    cnn1_loss_val = []
+    cnn2_loss_val = []
+
+    lstm1_loss_val = []
+    lstm2_loss_val = []
+    lstm3_loss_val = []
+
+    bd_lstm1_loss_val = []
+    bd_lstm2_loss_val = []
+    bd_lstm3_loss_val = []
+
     ##### Build CNN_Base Model #####
     cnn_base_model, cnn_base_history = build_cnn_base_model(
         X_train,
@@ -72,7 +120,9 @@ if __name__ == "__main__":
         learning_rate=1e-3,
         epochs=EPOCHS
     )
+    print(cnn_base_history.history)
 
+    """
     ### Test CNN_Base ###
     cnn_base_df = test_df.copy()
     test_pred = cnn_base_model.predict(X_test)
@@ -257,3 +307,4 @@ if __name__ == "__main__":
     bd_lstm_att_fc_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(bd_lstm_att_fc_df, results_col, target_col)))
     bd_lstm_att_fc_loss,_ = bd_lstm_att_fc_model.evaluate(X_test, y_test)
     print("Bidirectional LSTM Attention Bias Score: {:.4f} --- Bidirectional LSTM Attention Loss: {:.4f}".format(bd_lstm_att_fc_score, bd_lstm_att_fc_loss))
+    """
