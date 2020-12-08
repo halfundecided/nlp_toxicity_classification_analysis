@@ -16,7 +16,7 @@ from tensorflow.keras import optimizers
 
 from preprocess import *
 
-def build_cnn_model(
+def build_cnn_sdbn_model(
     X_train,
     y_train,
     X_val,
@@ -26,6 +26,7 @@ def build_cnn_model(
     vocab_size,
     embedding_dim,
     learning_rate,
+    epochs=3
 ):
     inp = Input(shape=(maxlen,))
     embedding = Embedding(
@@ -42,15 +43,15 @@ def build_cnn_model(
     pool0 = MaxPooling1D(pool_size=4)(conv0)
     bn0 = BatchNormalization() (pool0)
 
-    conv1 = Conv1D(filters=128, kernel_size=3, padding="same", activation="relu")(pool0)
+    conv1 = Conv1D(filters=128, kernel_size=3, padding="same", activation="relu")(bn0)
     pool1 = MaxPooling1D(pool_size=4, padding="same")(conv1)
     bn1 = BatchNormalization() (pool1)
 
-    conv2 = Conv1D(filters=128, kernel_size=3, padding="same", activation="relu")(pool1)
+    conv2 = Conv1D(filters=128, kernel_size=3, padding="same", activation="relu")(bn1)
     pool2 = MaxPooling1D(pool_size=4, padding='same')(conv2)
     bn2 = BatchNormalization() (pool2)
 
-    conv3 = Conv1D(filters=128, kernel_size=3, padding="same", activation="relu")(pool2)
+    conv3 = Conv1D(filters=128, kernel_size=3, padding="same", activation="relu")(bn2)
     pool3 = MaxPooling1D(pool_size=4, padding='same')(conv3)
     bn3 = BatchNormalization() (pool3)
 
@@ -69,7 +70,7 @@ def build_cnn_model(
         metrics=["accuracy"],
     )
     history = model.fit(
-        X_train, y_train, epochs=3, validation_data=(X_val, y_val), batch_size=128
+        X_train, y_train, epochs=epochs, validation_data=(X_val, y_val), batch_size=128
     )
 
     return model, history

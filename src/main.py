@@ -11,13 +11,16 @@ config.gpu_options.allow_growth = True
 session = InteractiveSession(config=config)
 
 from preprocess import *
-from cnn import *
-from lstm import *
+from cnn_base import *
+from cnn_sdbn import *
+from lstm_base import *
+from lstm_2 import *
 from bidirectional_lstm import *
 from metrics import *
 
 if __name__ == "__main__":
     EMBEDDING_DIM = 300  # need to add params to cnn and lstm
+    EPOCHS = 6
     
     ##### Run Preprocessing #####
     (
@@ -39,9 +42,14 @@ if __name__ == "__main__":
         "../data/glove.42B.300d.txt", vocab_size, word_index
     )
     print("done embedding!")
+
+    ##### Define Testing Variables #####
+    identity_cols = ['male', 'female', 'homosexual_gay_or_lesbian', 'christian', 'jewish', 'muslim', 'black', 'white', 'psychiatric_or_mental_illness']
+    results_col = 'predicted_toxicity'
+    target_col = 'toxicity'
     
-    ##### Build CNN Model #####
-    cnn_model, cnn_history = build_cnn_model(
+    ##### Build CNN_Base Model #####
+    cnn_base_model, cnn_base_history = build_cnn_base_model(
         X_train,
         y_train,
         X_val,
@@ -51,10 +59,48 @@ if __name__ == "__main__":
         vocab_size,
         EMBEDDING_DIM,
         learning_rate=1e-3,
+        epochs=EPOCHS
     )
 
-    ##### Build LSTM Model #####
-    lstm_model, lstm_history = build_lstm_model(
+    ### Test CNN_Base ###
+    cnn_base_df = test_df.copy()
+    test_pred = cnn_base_model.predict(X_test)
+    cnn_base_df[results_col] = test_pred
+
+    bias_metrics_df = compute_bias_metrics_for_model(cnn_base_df, identity_cols, results_col, target_col)
+    cnn_base_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(cnn_base_df, results_col, target_col)))
+    cnn_base_loss,_ = cnn_base_model.evaluate(X_test, y_test)
+    print("CNN_Base Bias Score: {:.4f} --- CNN_Base Loss: {:.4f}".format(cnn_base_score, cnn_base_loss))
+
+
+    ##### Build CNN_SDBN Model #####
+    cnn_sdbn_model, cnn_sdbn_history = build_cnn_sdbn_model(
+        X_train,
+        y_train,
+        X_val,
+        y_val,
+        embedding_matrix,
+        maxlen,
+        vocab_size,
+        EMBEDDING_DIM,
+        learning_rate=1e-3,
+        epochs=EPOCHS
+    )
+
+    ### Test CNN_Base ###
+    cnn_sdbn_df = test_df.copy()
+    test_pred = cnn_sdbn_model.predict(X_test)
+    cnn_sdbn_df[results_col] = test_pred
+
+    bias_metrics_df = compute_bias_metrics_for_model(cnn_sdbn_df, identity_cols, results_col, target_col)
+    cnn_sdbn_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(cnn_sdbn_df, results_col, target_col)))
+    cnn_sdbn_loss,_ = cnn_sdbn_model.evaluate(X_test, y_test)
+    print("CNN_Base Bias Score: {:.4f} --- CNN_Base Loss: {:.4f}".format(cnn_sdbn_score, cnn_sdbn_loss))
+
+
+
+    ##### Build LSTM_Base Model #####
+    lstm_base_model, lstm_base_history = build_lstm_base_model(
     X_train,
     y_train,
     X_val,
@@ -62,7 +108,44 @@ if __name__ == "__main__":
     embedding_matrix,
     vocab_size,
     EMBEDDING_DIM,
-    learning_rate=1e-3)
+    learning_rate=1e-3,
+    epochs=EPOCHS)
+
+    ### Test LSTM_Base ###
+    lstm_base_df = test_df.copy()
+    test_pred = lstm_base_model.predict(X_test)
+    lstm_base_df[results_col] = test_pred
+
+    bias_metrics_df = compute_bias_metrics_for_model(lstm_base_df, identity_cols, results_col, target_col)
+    lstm_base_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(lstm_base_df, results_col, target_col)))
+    lstm_base_loss,_ = lstm_base_model.evaluate(X_test, y_test)
+    print("LSTM_Base Bias Score: {:.4f} --- LSTM_Base Loss: {:.4f}".format(lstm_base_score, lstm_base_loss))
+
+
+
+    ##### Build LSTM_2 Model #####
+    lstm_2_model, lstm_2_history = build_lstm_2_model(
+    X_train,
+    y_train,
+    X_val,
+    y_val,
+    embedding_matrix,
+    vocab_size,
+    EMBEDDING_DIM,
+    learning_rate=1e-3,
+    epochs=EPOCHS)
+
+    ### Test LSTM ###
+    lstm_2_df = test_df.copy()
+    test_pred = lstm_2_model.predict(X_test)
+    lstm_2_df[results_col] = test_pred
+
+    bias_metrics_df = compute_bias_metrics_for_model(lstm_2_df, identity_cols, results_col, target_col)
+    lstm_2_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(lstm_2_df, results_col, target_col)))
+    lstm_2_loss,_ = lstm_2_model.evaluate(X_test, y_test)
+    print("LSTM Bias Score: {:.4f} --- LSTM Loss: {:.4f}".format(lstm_2_score, lstm_2_loss))
+
+
 
     ##### Build BD-LSTM Model #####
     bd_lstm_model, bd_lstm_history = build_bidirectional_model(
@@ -74,32 +157,8 @@ if __name__ == "__main__":
     maxlen,
     vocab_size,
     EMBEDDING_DIM,
-    learning_rate=1e-3)
-
-    ##### Test against custom bias metric #####
-    identity_cols = ['male', 'female', 'homosexual_gay_or_lesbian', 'christian', 'jewish', 'muslim', 'black', 'white', 'psychiatric_or_mental_illness']
-    results_col = 'predicted_toxicity'
-    target_col = 'toxicity'
-
-    ### Test CNN ###
-    cnn_df = test_df.copy()
-    test_pred = cnn_model.predict(X_test)
-    cnn_df[results_col] = test_pred
-
-    bias_metrics_df = compute_bias_metrics_for_model(cnn_df, identity_cols, results_col, target_col)
-    cnn_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(cnn_df, results_col, target_col)))
-    cnn_loss,_ = cnn_model.evaluate(X_test, y_test)
-    print("CNN Bias Score: {:.4f} --- CNN Loss: {:.4f}".format(cnn_score, cnn_loss))
-    
-    ### Test LSTM ###
-    lstm_df = test_df.copy()
-    test_pred = lstm_model.predict(X_test)
-    lstm_df[results_col] = test_pred
-
-    bias_metrics_df = compute_bias_metrics_for_model(lstm_df, identity_cols, results_col, target_col)
-    lstm_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(lstm_df, results_col, target_col)))
-    lstm_loss,_ = lstm_model.evaluate(X_test, y_test)
-    print("LSTM Bias Score: {:.4f} --- LSTM Loss: {:.4f}".format(lstm_score, lstm_loss))
+    learning_rate=1e-3,
+    epochs=EPOCHS)
 
     ### Test Bidirectional LSTM ###
     bd_lstm_df = test_df.copy()

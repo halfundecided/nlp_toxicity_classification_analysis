@@ -24,6 +24,7 @@ def build_bidirectional_model(
     vocab_size,
     embedding_dim,
     learning_rate,
+    epochs=3
 ):
     input = Input(shape=(maxlen,))
     embedding = Embedding(
@@ -52,7 +53,7 @@ def build_bidirectional_model(
         metrics=["accuracy"],
     )
     history = model.fit(
-        X_train, y_train, epochs=3, validation_data=(X_val, y_val), batch_size=128
+        X_train, y_train, epochs=epochs, validation_data=(X_val, y_val), batch_size=128
     )
 
     return model, history
