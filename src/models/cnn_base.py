@@ -37,16 +37,16 @@ def build_cnn_base_model(
     conv0 = Conv1D(filters=128, kernel_size=3, padding="same", activation="relu")(
         embedding
     )
-    pool0 = MaxPooling1D(pool_size=4)(conv0)
+    pool0 = MaxPooling1D(pool_size=2)(conv0)
 
     conv1 = Conv1D(filters=128, kernel_size=3, padding="same", activation="relu")(pool0)
-    pool1 = MaxPooling1D(pool_size=4, padding="same")(conv1)
+    pool1 = MaxPooling1D(pool_size=2, padding="same")(conv1)
 
     conv2 = Conv1D(filters=128, kernel_size=3, padding="same", activation="relu")(pool1)
-    pool2 = MaxPooling1D(pool_size=4, padding='same')(conv2)
+    pool2 = MaxPooling1D(pool_size=2, padding='same')(conv2)
 
     conv3 = Conv1D(filters=128, kernel_size=3, padding="same", activation="relu")(pool2)
-    pool3 = MaxPooling1D(pool_size=4, padding='same')(conv3)
+    pool3 = MaxPooling1D(pool_size=2, padding='same')(conv3)
 
     flatten = Flatten()(pool3)
     dense0 = Dense(128, activation="relu")(flatten)
@@ -63,7 +63,7 @@ def build_cnn_base_model(
         metrics=["accuracy"],
     )
     history = model.fit(
-        X_train, y_train, epochs=epochs, validation_data=(X_val, y_val), batch_size=128
+        X_train, y_train, epochs=epochs, validation_data=(X_val, y_val), batch_size=256
     )
 
     return model, history

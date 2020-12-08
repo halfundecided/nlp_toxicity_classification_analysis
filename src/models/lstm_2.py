@@ -39,7 +39,7 @@ def build_lstm_2_model(
         metrics=["accuracy"],
     )
     history = model.fit(
-        X_train, y_train, epochs=epochs, validation_data=(X_val, y_val), batch_size=128
+        X_train, y_train, epochs=epochs, validation_data=(X_val, y_val), batch_size=256
     )
 
     return model, history

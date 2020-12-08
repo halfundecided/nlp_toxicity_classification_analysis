@@ -10,17 +10,27 @@ config = ConfigProto()
 config.gpu_options.allow_growth = True
 session = InteractiveSession(config=config)
 
+# append path to models and layers
+sys.path.append("./models/")
+sys.path.append("./layers/")
+
 from preprocess import *
+
 from cnn_base import *
 from cnn_sdbn import *
+
 from lstm_base import *
 from lstm_2 import *
+from lstm_att import *
+
 from bidirectional_lstm import *
+from bidirectional_lstm_att import *
+
 from metrics import *
 
 if __name__ == "__main__":
     EMBEDDING_DIM = 300  # need to add params to cnn and lstm
-    EPOCHS = 6
+    EPOCHS = 3
     
     ##### Run Preprocessing #####
     (
@@ -47,7 +57,7 @@ if __name__ == "__main__":
     identity_cols = ['male', 'female', 'homosexual_gay_or_lesbian', 'christian', 'jewish', 'muslim', 'black', 'white', 'psychiatric_or_mental_illness']
     results_col = 'predicted_toxicity'
     target_col = 'toxicity'
-    
+
     ##### Build CNN_Base Model #####
     cnn_base_model, cnn_base_history = build_cnn_base_model(
         X_train,
@@ -71,6 +81,7 @@ if __name__ == "__main__":
     cnn_base_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(cnn_base_df, results_col, target_col)))
     cnn_base_loss,_ = cnn_base_model.evaluate(X_test, y_test)
     print("CNN_Base Bias Score: {:.4f} --- CNN_Base Loss: {:.4f}".format(cnn_base_score, cnn_base_loss))
+
 
 
     ##### Build CNN_SDBN Model #####
@@ -135,7 +146,7 @@ if __name__ == "__main__":
     learning_rate=1e-3,
     epochs=EPOCHS)
 
-    ### Test LSTM ###
+    ### Test LSTM_2 ###
     lstm_2_df = test_df.copy()
     test_pred = lstm_2_model.predict(X_test)
     lstm_2_df[results_col] = test_pred
@@ -146,7 +157,32 @@ if __name__ == "__main__":
     print("LSTM_2 Bias Score: {:.4f} --- LSTM_2 Loss: {:.4f}".format(lstm_2_score, lstm_2_loss))
 
 
+    ##### Build LSTM_Attention Model #####
+    lstm_att_model, lstm_att_history = build_lstm_att_model(
+        X_train,
+        y_train,
+        X_val,
+        y_val,
+        embedding_matrix,
+        maxlen,
+        vocab_size,
+        EMBEDDING_DIM,
+        learning_rate=1e-3,
+        epochs=EPOCHS
+    )
 
+    ### Test LSTM_Attention ###
+    lstm_att_df = test_df.copy()
+    test_pred = lstm_att_model.predict(X_test)
+    lstm_att_df[results_col] = test_pred
+
+    bias_metrics_df = compute_bias_metrics_for_model(lstm_att_df, identity_cols, results_col, target_col)
+    lstm_att_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(lstm_att_df, results_col, target_col)))
+    lstm_att_loss,_ = lstm_att_model.evaluate(X_test, y_test)
+    print("LSTM_Attention Bias Score: {:.4f} --- LSTM_Attention Loss: {:.4f}".format(lstm_att_score, lstm_att_loss))
+
+
+    
     ##### Build BD-LSTM Model #####
     bd_lstm_model, bd_lstm_history = build_bidirectional_model(
     X_train,
@@ -169,3 +205,29 @@ if __name__ == "__main__":
     bd_lstm_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(bd_lstm_df, results_col, target_col)))
     bd_lstm_loss,_ = bd_lstm_model.evaluate(X_test, y_test)
     print("Bidirectional LSTM Bias Score: {:.4f} --- Bidirectional LSTM Loss: {:.4f}".format(bd_lstm_score, bd_lstm_loss))
+
+
+
+    
+    ##### Build BD-LSTM_Attention Model #####
+    bd_lstm_att_model, bd_lstm_att_history = build_bidirectional_att_model(
+    X_train,
+    y_train,
+    X_val,
+    y_val,
+    embedding_matrix,
+    maxlen,
+    vocab_size,
+    EMBEDDING_DIM,
+    learning_rate=1e-3,
+    epochs=EPOCHS)
+
+    ### Test Bidirectional LSTM ###
+    bd_lstm_att_df = test_df.copy()
+    test_pred = bd_lstm_att_model.predict(X_test)
+    bd_lstm_att_df[results_col] = test_pred
+
+    bias_metrics_df = compute_bias_metrics_for_model(bd_lstm_att_df, identity_cols, results_col, target_col)
+    bd_lstm_att_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(bd_lstm_att_df, results_col, target_col)))
+    bd_lstm_att_loss,_ = bd_lstm_att_model.evaluate(X_test, y_test)
+    print("Bidirectional LSTM Attention Bias Score: {:.4f} --- Bidirectional LSTM Attention Loss: {:.4f}".format(bd_lstm_att_score, bd_lstm_att_loss))
