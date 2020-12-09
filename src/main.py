@@ -29,9 +29,11 @@ from bidirectional_lstm_att_fc import *
 
 from metrics import *
 
+import matplotlib.pyplot as plt
+
 if __name__ == "__main__":
     EMBEDDING_DIM = 300  # need to add params to cnn and lstm
-    EPOCHS = 3
+    EPOCHS = 6
     
     ##### Run Preprocessing #####
     (
@@ -59,6 +61,10 @@ if __name__ == "__main__":
     results_col = 'predicted_toxicity'
     target_col = 'toxicity'
 
+    epoch_list = list(range(EPOCHS))
+    fig, ((acc_ax, vacc_ax), (loss_ax, vloss_ax)) = plt.subplots(2,2)
+    fig.suptitle("Training Analysis")
+    fig.tight_layout(pad=5.0)
     ##### accuracy containers #####
     cnn1_acc = []
     cnn2_acc = []
@@ -120,9 +126,11 @@ if __name__ == "__main__":
         learning_rate=1e-3,
         epochs=EPOCHS
     )
-    print(cnn_base_history.history)
+    cnn1_acc = cnn_base_history.history["accuracy"]
+    cnn1_acc_val = cnn_base_history.history["val_accuracy"]
+    cnn1_loss = cnn_base_history.history["loss"]
+    cnn1_loss_val = cnn_base_history.history["val_loss"]
 
-    """
     ### Test CNN_Base ###
     cnn_base_df = test_df.copy()
     test_pred = cnn_base_model.predict(X_test)
@@ -148,6 +156,10 @@ if __name__ == "__main__":
         learning_rate=1e-3,
         epochs=EPOCHS
     )
+    cnn2_acc = cnn_sdbn_history.history["accuracy"]
+    cnn2_acc_val = cnn_sdbn_history.history["val_accuracy"]
+    cnn2_loss = cnn_sdbn_history.history["loss"]
+    cnn2_loss_val = cnn_sdbn_history.history["val_loss"]
 
     ### Test CNN_Base ###
     cnn_sdbn_df = test_df.copy()
@@ -173,6 +185,11 @@ if __name__ == "__main__":
     learning_rate=1e-3,
     epochs=EPOCHS)
 
+    lstm1_acc = lstm_base_history.history["accuracy"]
+    lstm1_acc_val = lstm_base_history.history["val_accuracy"]
+    lstm1_loss = lstm_base_history.history["loss"]
+    lstm1_loss_val = lstm_base_history.history["val_loss"]
+
     ### Test LSTM_Base ###
     lstm_base_df = test_df.copy()
     test_pred = lstm_base_model.predict(X_test)
@@ -196,6 +213,11 @@ if __name__ == "__main__":
     EMBEDDING_DIM,
     learning_rate=1e-3,
     epochs=EPOCHS)
+
+    lstm2_acc = lstm_2_history.history["accuracy"]
+    lstm2_acc_val = lstm_2_history.history["val_accuracy"]
+    lstm2_loss = lstm_2_history.history["loss"]
+    lstm2_loss_val = lstm_2_history.history["val_loss"]
 
     ### Test LSTM_2 ###
     lstm_2_df = test_df.copy()
@@ -222,6 +244,11 @@ if __name__ == "__main__":
         epochs=EPOCHS
     )
 
+    lstm3_acc = lstm_att_history.history["accuracy"]
+    lstm3_acc_val = lstm_att_history.history["val_accuracy"]
+    lstm3_loss = lstm_att_history.history["loss"]
+    lstm3_loss_val = lstm_att_history.history["val_loss"]
+
     ### Test LSTM_Attention ###
     lstm_att_df = test_df.copy()
     test_pred = lstm_att_model.predict(X_test)
@@ -246,6 +273,11 @@ if __name__ == "__main__":
     EMBEDDING_DIM,
     learning_rate=1e-3,
     epochs=EPOCHS)
+
+    bd_lstm1_acc = bd_lstm_history.history["accuracy"]
+    bd_lstm1_acc_val = bd_lstm_history.history["val_accuracy"]
+    bd_lstm1_loss = bd_lstm_history.history["loss"]
+    bd_lstm1_loss_val = bd_lstm_history.history["val_loss"]
 
     ### Test Bidirectional LSTM ###
     bd_lstm_df = test_df.copy()
@@ -273,6 +305,11 @@ if __name__ == "__main__":
     learning_rate=1e-3,
     epochs=EPOCHS)
 
+    bd_lstm2_acc = bd_lstm_att_history.history["accuracy"]
+    bd_lstm2_acc_val = bd_lstm_att_history.history["val_accuracy"]
+    bd_lstm2_loss = bd_lstm_att_history.history["loss"]
+    bd_lstm2_loss_val = bd_lstm_att_history.history["val_loss"]
+
     ### Test Bidirectional LSTM ###
     bd_lstm_att_df = test_df.copy()
     test_pred = bd_lstm_att_model.predict(X_test)
@@ -298,6 +335,11 @@ if __name__ == "__main__":
     learning_rate=1e-3,
     epochs=EPOCHS)
 
+    bd_lstm3_acc = bd_lstm_att_fc_history.history["accuracy"]
+    bd_lstm3_acc_val = bd_lstm_att_fc_history.history["val_accuracy"]
+    bd_lstm3_loss = bd_lstm_att_fc_history.history["loss"]
+    bd_lstm3_loss_val = bd_lstm_att_fc_history.history["val_loss"]
+
     ### Test Bidirectional LSTM ###
     bd_lstm_att_fc_df = test_df.copy()
     test_pred = bd_lstm_att_fc_model.predict(X_test)
@@ -307,4 +349,63 @@ if __name__ == "__main__":
     bd_lstm_att_fc_score = (get_final_metric(bias_metrics_df, calculate_overall_auc(bd_lstm_att_fc_df, results_col, target_col)))
     bd_lstm_att_fc_loss,_ = bd_lstm_att_fc_model.evaluate(X_test, y_test)
     print("Bidirectional LSTM Attention Bias Score: {:.4f} --- Bidirectional LSTM Attention Loss: {:.4f}".format(bd_lstm_att_fc_score, bd_lstm_att_fc_loss))
-    """
+
+
+    ##### Plot Data #####
+    # accuracy
+    acc_ax.plot(epoch_list, cnn1_acc, label="CNN")
+    acc_ax.plot(epoch_list, cnn2_acc, label="CNN+(SD,BN)")
+    acc_ax.plot(epoch_list, lstm1_acc, label="LSTM")
+    acc_ax.plot(epoch_list, lstm2_acc, label="LSTM+(x2)")
+    acc_ax.plot(epoch_list, lstm3_acc, label="LSTM+(x2,ATT)")
+    acc_ax.plot(epoch_list, bd_lstm1_acc, label="B-LSTM+(x2)")
+    acc_ax.plot(epoch_list, bd_lstm2_acc, label="B-LSTM+(x2,ATT)")
+    acc_ax.plot(epoch_list, bd_lstm3_acc, label="B-LSTM+(x2,ATT,FC)")
+
+    acc_ax.set_title("Accuracy")
+    acc_ax.set_xlabel("Iterations")
+    acc_ax.set_ylabel("Accuracy")
+
+    # loss
+    loss_ax.plot(epoch_list, cnn1_loss)
+    loss_ax.plot(epoch_list, cnn2_loss)
+    loss_ax.plot(epoch_list, lstm1_loss)
+    loss_ax.plot(epoch_list, lstm2_loss)
+    loss_ax.plot(epoch_list, lstm3_loss)
+    loss_ax.plot(epoch_list, bd_lstm1_loss)
+    loss_ax.plot(epoch_list, bd_lstm2_loss)
+    loss_ax.plot(epoch_list, bd_lstm3_loss)
+
+    loss_ax.set_title("Loss")
+    loss_ax.set_xlabel("Iterations")
+    loss_ax.set_ylabel("Loss")
+    
+    # val accuracy
+    vacc_ax.plot(epoch_list, cnn1_acc_val)
+    vacc_ax.plot(epoch_list, cnn2_acc_val)
+    vacc_ax.plot(epoch_list, lstm1_acc_val)
+    vacc_ax.plot(epoch_list, lstm2_acc_val)
+    vacc_ax.plot(epoch_list, lstm3_acc_val)
+    vacc_ax.plot(epoch_list, bd_lstm1_acc_val)
+    vacc_ax.plot(epoch_list, bd_lstm2_acc_val)
+    vacc_ax.plot(epoch_list, bd_lstm3_acc_val)
+
+    vacc_ax.set_title("Validation Accuracy")
+    vacc_ax.set_xlabel("Iterations")
+    vacc_ax.set_ylabel("Accuracy")
+
+    # val loss
+    vloss_ax.plot(epoch_list, cnn1_loss_val)
+    vloss_ax.plot(epoch_list, cnn2_loss_val)
+    vloss_ax.plot(epoch_list, lstm1_loss_val)
+    vloss_ax.plot(epoch_list, lstm2_loss_val)
+    vloss_ax.plot(epoch_list, lstm3_loss_val)
+    vloss_ax.plot(epoch_list, bd_lstm1_loss_val)
+    vloss_ax.plot(epoch_list, bd_lstm2_loss_val)
+    vloss_ax.plot(epoch_list, bd_lstm3_loss_val)
+
+    vloss_ax.set_title("Validation Loss")
+    vloss_ax.set_xlabel("Iterations")
+    vloss_ax.set_ylabel("Loss")
+
+    fig.savefig("train_analysis.png",bbox_inches="tight")
